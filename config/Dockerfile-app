@@ -1,0 +1,7 @@
+FROM node:6-onbuild
+
+ENV maintained 2017-04-30
+
+ENV APP_DIR /app
+RUN mkdir -p $APP_DIR
+WORKDIR ${APP_DIR}

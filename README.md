@@ -29,6 +29,7 @@ Read more details about the `handleAll` method [here](#all-in-one).
 * First release.
 * `handleAll`: global handler with `signin`, `create`, and `find` (one user) actions.
 * `authorize`: handler to be used in your other Google Functions that require user authorization.
+* Hardcoded validation.
 * Hardcoded CORS support (allow all requests).
 
 ### TBA
@@ -36,6 +37,7 @@ Read more details about the `handleAll` method [here](#all-in-one).
 In order of priority:
 
 * Simplified role support.
+* Support custom models (and validation).
 * `update` action.
 * `list` action (many users).
 * `signout` action.
@@ -47,10 +49,12 @@ In order of priority:
 * Allow configuration of Datastore options, such as kind, namespace, and attribute names.
 * Allow configuration of client-session options.
 * Allow handlers to be called separately, allowing one Google Function to be created for each (good for monitoring).
+* Support other data stores (like MySQL).
+* Support other password hashing libraries.
 
 ## Usage
 
-Refer to the Roadmap to see which features are currently implemented.
+Refer to the Roadmap above to see which features are currently implemented.
 
 ### User Sign In
 
@@ -188,10 +192,5 @@ exports.handleRequest = function (req, res) {
 __Configuration must be the same across all functions__, so if you change any of the default values, make sure to replicate them accordingly.
 
 _When Google Cloud Functions support environment variables, we will change this approach so all this copy/pasting can be avoided and configuration can be unified._
-
-## TODO/Wishlist
-
-* Support other data stores (like MySQL)
-* Support custom password management libraries
 
 __This is a work in progress.__

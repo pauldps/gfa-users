@@ -1,0 +1,39 @@
+{
+  "name": "google-function-auth",
+  "version": "0.1.0",
+  "description": "User management library for Google HTTP Functions",
+  "main": "lib/google-function-auth.js",
+  "scripts": {
+    "test": "./node_modules/.bin/eslint lib/** && nyc mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pauloddr/google-function-auth.git"
+  },
+  "author": "@pauloddr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pauloddr/google-function-auth/issues"
+  },
+  "homepage": "https://github.com/pauloddr/google-function-auth#readme",
+  "dependencies": {
+    "@google-cloud/datastore": "1.0.1",
+    "gstore-node": "1.2.0"
+  },
+  "devDependencies": {
+    "body-parser": "1.17.1",
+    "chai": "3.5.0",
+    "chai-http": "3.0.0",
+    "dotenv": "4.0.0",
+    "eslint": "3.19.0",
+    "express": "4.15.2",
+    "mocha": "3.3.0",
+    "nyc": "10.3.0"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  }
+}
