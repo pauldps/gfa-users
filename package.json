@@ -1,8 +1,8 @@
 {
   "name": "google-function-auth",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "User management library for Google HTTP Functions",
-  "main": "lib/google-function-auth.js",
+  "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/eslint lib/** && nyc mocha"
   },

@@ -2,7 +2,7 @@
 
 require('../config/test');
 
-const GoogleFunctionAuth = require('../lib/google-function-auth');
+const GoogleFunctionAuth = require('../index');
 
 const expressApp = require('express')();
 const bodyParser = require('body-parser');
