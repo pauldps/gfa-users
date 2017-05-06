@@ -11,7 +11,7 @@ describe('GoogleFunctionAuth', function () {
     it('fails with blank password', function (done) {
       let data = {password: ''};
       app.post('/create').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('EMPTY_PASSWORD');
+        expect(res.body.reason).to.equal('EMPTY_PASSWORD');
         expect(res.statusCode).to.equal(400);
         done();
       });
@@ -20,7 +20,6 @@ describe('GoogleFunctionAuth', function () {
     it('fails with blank email', function (done) {
       let data = {password: 'abc123', email: ''};
       app.post('/create').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('ERROR');
         expect(res.statusCode).to.equal(400);
         done();
       });

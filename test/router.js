@@ -11,7 +11,7 @@ describe('GoogleFunctionAuth', function () {
       let data = {action: 'test', data: {}};
       app.post('/all').send(data).end(function (err, res) {
         expect(res.statusCode).to.equal(400);
-        expect(res.body.code).to.equal('INVALID_ACTION');
+        expect(res.body.reason).to.equal('INVALID_ACTION');
         done();
       });
     });

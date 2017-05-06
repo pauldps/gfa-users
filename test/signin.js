@@ -25,7 +25,7 @@ describe('GoogleFunctionAuth', function () {
     it('fails with blank email', function (done) {
       let data = {password: 'abc123', email: ''};
       app.post('/signin').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('EMAIL_REQUIRED');
+        expect(res.body.reason).to.equal('EMAIL_REQUIRED');
         expect(res.statusCode).to.equal(400);
         done();
       });
@@ -34,7 +34,7 @@ describe('GoogleFunctionAuth', function () {
     it('fails with blank password', function (done) {
       let data = {email: 'signintest@test.com', password: ''};
       app.post('/signin').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('PASSWORD_REQUIRED');
+        expect(res.body.reason).to.equal('PASSWORD_REQUIRED');
         expect(res.statusCode).to.equal(400);
         done();
       });
@@ -43,7 +43,7 @@ describe('GoogleFunctionAuth', function () {
     it('fails with wrong password', function (done) {
       let data = {email: 'signintest@test.com', password: 'wrongpass'};
       app.post('/signin').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('WRONG_PASSWORD');
+        expect(res.body.reason).to.equal('WRONG_PASSWORD');
         expect(res.statusCode).to.equal(400);
         done();
       });
