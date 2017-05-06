@@ -16,6 +16,10 @@ expressApp.post('/create', function (req, res) {
   GoogleFunctionAuth.create(req, res);
 });
 
+expressApp.post('/signin', function (req, res) {
+  GoogleFunctionAuth.signin(req, res);
+});
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
