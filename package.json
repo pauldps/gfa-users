@@ -1,21 +1,21 @@
 {
-  "name": "google-function-auth",
+  "name": "google-function-authorizer",
   "version": "0.0.1",
-  "description": "User management library for Google HTTP Functions",
+  "description": "User management and authentication library for Google HTTP Functions",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/eslint lib/** && nyc mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pauloddr/google-function-auth.git"
+    "url": "git+https://github.com/pauloddr/google-function-authorizer.git"
   },
   "author": "@pauloddr",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pauloddr/google-function-auth/issues"
+    "url": "https://github.com/pauloddr/google-function-authorizer/issues"
   },
-  "homepage": "https://github.com/pauloddr/google-function-auth#readme",
+  "homepage": "https://github.com/pauloddr/google-function-authorizer#readme",
   "dependencies": {
     "@google-cloud/datastore": "1.0.1",
     "bcrypt": "1.0.2",

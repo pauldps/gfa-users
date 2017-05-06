@@ -1,4 +1,6 @@
-# google-function-auth (under development)
+# google-function-authorizer
+
+__(Currently under development)__
 
 A simple user authentication and management system for [Google Cloud HTTP Functions](https://cloud.google.com/functions/docs/writing/http).
 
@@ -13,10 +15,10 @@ Dependencies:
 Create a Google HTTP Function in your project that will provide an API for user authentication, authorization, and management:
 
 ```javascript
-const GoogleFunctionAuth = require('google-function-auth');
+const authorizer = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.all(req, res);
+  authorizer.all(req, res);
 };
 ```
 
@@ -27,9 +29,13 @@ Read more details about the `all` method [here](#all-in-one).
 ### 0.1.0
 
 * First release.
-* `all`: global handler with `signin`, `create`, and `find` (one user) actions.
+* `all`: global handler with `signin`, `create`, `find` (one user), and `ping` actions.
 * `authorize`: handler to be used in your other Google Functions that require user authorization.
-* Hardcoded validation.
+* `create` action.
+* `signin` action.
+* `signout` action.
+* `ping` action.
+* Hardcoded model/validation.
 * Hardcoded CORS support (allow all requests).
 
 ### TBA
@@ -37,10 +43,9 @@ Read more details about the `all` method [here](#all-in-one).
 In order of priority:
 
 * Simplified role support.
-* Support custom models (and validation).
+* Support custom models and validation.
 * `update` action.
 * `list` action (many users).
-* `signout` action.
 * `destroy` action.
 * Email service support (Mailgun, SendGrid, etc) for sending various confirmation messages.
 * In-memory caching support for `authorization`.
@@ -54,25 +59,26 @@ In order of priority:
 
 ## Usage
 
-Refer to the Roadmap above to see which features are currently implemented.
+__Refer to the Roadmap above to see which features are currently implemented.__
 
 ### User Sign In
 
 __Version__: TBA
 
-First, create a Google Cloud HTTP Function that will serve as your authentication endpoint with the following content:
+You can create a Google Cloud HTTP Function that will serve as your authentication endpoint with the following content:
 
 ```javascript
-const GoogleFunctionAuth = require('google-function-auth');
+const authorizer = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.authenticate(req, res);
+  authorizer.signin(req, res);
 };
 ```
 
 Assuming you named your function `signin`, the following endpoint will be available:
 
-* `POST /signin` - signs an User in.
+* `POST /signin` - signs an user in.
+* `DELETE /signin` - signs an user out.
 
 Upon successful login, the response will set a cookie in your browser, which is then sent alongside future requests and checked for authorization when applicable.
 
@@ -83,10 +89,10 @@ __Version__: TBA
 To manage users, create a Google Cloud HTTP Function that will serve as your user management endpoint with the following content:
 
 ```javascript
-const GoogleFunctionAuth = require('google-function-auth');
+const authorizer = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.manage(req, res);
+  authorizer.manage(req, res);
 };
 ```
 
@@ -103,10 +109,10 @@ __Version__: 0.1.0, TBA
 You can create a simple HTTP Function that does it all:
 
 ```javascript
-const GoogleFunctionAuth = require('google-function-auth');
+const authorizer = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.all(req, res);
+  authorizer.all(req, res);
 };
 ```
 
@@ -121,7 +127,7 @@ Using the global handler requires that a JSON string is sent in the request body
 * `find` (as GET, one user)
 * `ping` (as GET, health check and session data)
 
-A `data` attribute is also required for each case, and must be an object with the following attributes:
+A `data` (for POST, PUT, and PATCH) or `query` (for GET and DELETE) attribute is also required in most cases and must be an object with the following attributes:
 
 * Sign In: `email` (or whatever is defined as the "username" attribute -- see Configuration) and `password`
 * Create: all user attributes
@@ -140,7 +146,7 @@ Call `authorize` in your _other_ Google Functions to have the session cookie rea
 
 ```javascript
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.authorize(req, res, mainFunction);
+  authorizer.authorize(req, res, mainFunction);
 };
 
 function mainFunction (req, res, user) {
@@ -171,21 +177,21 @@ __Version:__ TBA
 With the exception of `session.secret`, all other settings have the following defaults:
 
 ```javascript
-const GoogleFunctionAuth = require('google-function-auth');
+const authorizer = require('google-function-authorizer');
 
-GoogleFunctionAuth.session.secret = 'MYSECRET';
-GoogleFunctionAuth.session.expiration = 24 * 60 * 60 * 1000; // session expiration in ms
-GoogleFunctionAuth.session.active = 1000 * 60 * 5; // session active duration in ms
+authorizer.session.secret = 'MYSECRET';
+authorizer.session.expiration = 24 * 60 * 60 * 1000; // session expiration in ms
+authorizer.session.active = 1000 * 60 * 5; // session active duration in ms
 
-GoogleFunctionAuth.datastore.kind = 'User';
-GoogleFunctionAuth.datastore.namespace = null;
-GoogleFunctionAuth.datastore.fields.username = 'username';
-GoogleFunctionAuth.datastore.fields.email = 'email';
-GoogleFunctionAuth.datastore.fields.password = 'password';
-GoogleFunctionAuth.datastore.fields.role = 'role';
+authorizer.datastore.kind = 'User';
+authorizer.datastore.namespace = null;
+authorizer.datastore.fields.username = 'username';
+authorizer.datastore.fields.email = 'email';
+authorizer.datastore.fields.password = 'password';
+authorizer.datastore.fields.role = 'role';
 
-GoogleFunctionAuth.cors.allow = '*';
-GoogleFunctionAuth.allowDeletion = true;
+authorizer.cors.allow = '*';
+authorizer.allowDeletion = true;
 
 exports.handleRequest = function (req, res) {
   // ...
