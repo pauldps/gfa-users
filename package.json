@@ -18,6 +18,7 @@
   "homepage": "https://github.com/pauloddr/google-function-auth#readme",
   "dependencies": {
     "@google-cloud/datastore": "1.0.1",
+    "bcrypt": "1.0.2",
     "gstore-node": "1.2.0"
   },
   "devDependencies": {

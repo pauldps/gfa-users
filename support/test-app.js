@@ -12,6 +12,10 @@ expressApp.all('/all', function (req, res) {
   GoogleFunctionAuth.all(req, res);
 });
 
+expressApp.post('/create', function (req, res) {
+  GoogleFunctionAuth.create(req, res);
+});
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
