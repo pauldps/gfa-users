@@ -6,7 +6,7 @@ const User = require('../lib/user');
 
 describe('GoogleFunctionAuth', function () {
 
-  describe.only('signin', function () {
+  describe('signin', function () {
 
     let user;
 
@@ -53,12 +53,17 @@ describe('GoogleFunctionAuth', function () {
       let data = {password: 'abc12345', email: 'signintest@test.com'};
       app.post('/signin').send(data).end(function (err, res) {
         expect(res.body.code).to.equal('OK');
+        expect(res).to.have.cookie('userSession');
         expect(res.body.user.email).to.equal('signintest@test.com');
         expect(res.statusCode).to.equal(200);
         expect(res.body.user.id).to.exist;
         expect(res.body.user.password).to.not.exist;
         expect(res.body.user.confirmationToken).to.not.exist;
-        done();
+        // Session test
+        app.get('/ping').end((err, res) => {
+          expect(res.body.userId).to.equal(user.id);
+          done();
+        });
       });
     });
 

@@ -20,8 +20,12 @@ expressApp.post('/signin', function (req, res) {
   GoogleFunctionAuth.signin(req, res);
 });
 
+expressApp.get('/ping', function (req, res) {
+  GoogleFunctionAuth.ping(req, res);
+});
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
-module.exports = chai.request(expressApp);
+module.exports = chai.request.agent(expressApp);
