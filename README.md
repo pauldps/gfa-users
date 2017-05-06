@@ -119,6 +119,7 @@ Using the global handler requires that a JSON string is sent in the request body
 * `delete` or `destroy` (as DELETE) - TBA
 * `list` (as GET, many users) - TBA
 * `find` (as GET, one user)
+* `ping` (as GET, health check and session data)
 
 A `data` attribute is also required for each case, and must be an object with the following attributes:
 
@@ -146,6 +147,8 @@ function mainFunction (req, res, user) {
   // session is valid -- execute the rest of your function
 }
 ```
+
+If the session is valid, a `user` object will be passed along to your main function, containing a subset of stored attributes.
 
 If the session is invalid, a `401 - Unauthorized` error will be returned automatically. If you want to take control of error processing, pass a fourth argument to `authorize` with an error function that takes `req`, `res`, and `error` arguments.
 

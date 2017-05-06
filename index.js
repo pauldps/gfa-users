@@ -1,5 +1,6 @@
 'use strict';
 
+const authorize = require('./lib/authorize');
 const signin    = require('./lib/signin');
 const signout   = require('./lib/signout');
 const create    = require('./lib/create');
@@ -11,6 +12,7 @@ const ping      = require('./lib/ping');
 const all       = require('./lib/all');
 
 module.exports = {
+  authorize,
   signin,
   signout,
   create,
