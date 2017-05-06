@@ -16,18 +16,18 @@ Create a Google HTTP Function in your project that will provide an API for user 
 const GoogleFunctionAuth = require('google-function-auth');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.handleAll(req, res);
+  GoogleFunctionAuth.all(req, res);
 };
 ```
 
-Read more details about the `handleAll` method [here](#all-in-one).
+Read more details about the `all` method [here](#all-in-one).
 
 ## Project Roadmap
 
 ### 0.1.0
 
 * First release.
-* `handleAll`: global handler with `signin`, `create`, and `find` (one user) actions.
+* `all`: global handler with `signin`, `create`, and `find` (one user) actions.
 * `authorize`: handler to be used in your other Google Functions that require user authorization.
 * Hardcoded validation.
 * Hardcoded CORS support (allow all requests).
@@ -106,7 +106,7 @@ You can create a simple HTTP Function that does it all:
 const GoogleFunctionAuth = require('google-function-auth');
 
 exports.handleRequest = function (req, res) {
-  GoogleFunctionAuth.handleAll(req, res);
+  GoogleFunctionAuth.all(req, res);
 };
 ```
 

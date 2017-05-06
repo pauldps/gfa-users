@@ -7,7 +7,7 @@ const update    = require('./lib/update');
 const find      = require('./lib/find');
 const list      = require('./lib/list');
 const destroy   = require('./lib/destroy');
-const handleAll = require('./lib/handle-all');
+const all       = require('./lib/all');
 
 module.exports = {
   signin,
@@ -17,5 +17,5 @@ module.exports = {
   find,
   list,
   destroy,
-  handleAll
+  all
 };

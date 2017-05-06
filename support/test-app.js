@@ -8,8 +8,8 @@ const expressApp = require('express')();
 const bodyParser = require('body-parser');
 expressApp.use(bodyParser.json());
 
-expressApp.post('/handleAll', function (req, res) {
-  GoogleFunctionAuth.handleAll(req, res);
+expressApp.all('/all', function (req, res) {
+  GoogleFunctionAuth.all(req, res);
 });
 
 const chai = require('chai');
