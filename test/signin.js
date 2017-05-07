@@ -17,7 +17,12 @@ describe('signin', function () {
   });
 
   after((done) => {
-    User.delete(user.id, done);
+    app.post('/signout').end((err, res) => {
+      if (err) {
+        return done(err);
+      }
+      User.delete(user.id, done);
+    });
   });
 
   it('fails with blank email', function (done) {

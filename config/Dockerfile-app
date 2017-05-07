@@ -1,6 +1,10 @@
-FROM node:6-onbuild
+FROM buildpack-deps:jessie
+ENV LANG C.UTF-8
 
-ENV maintained 2017-04-30
+RUN (curl -sL https://deb.nodesource.com/setup_6.x | bash -) && \
+    apt-get install -y \
+    nodejs \
+ && rm -rf /var/lib/apt/lists/*
 
 ENV APP_DIR /app
 RUN mkdir -p $APP_DIR

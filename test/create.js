@@ -6,6 +6,38 @@ const User = require('../lib/user');
 
 describe('create', function () {
 
+  it('fails on GET', function (done) {
+    app.get('/create').end(function (err, res) {
+      expect(res.body.reason).to.equal('INVALID_METHOD');
+      expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  it('fails on PUT', function (done) {
+    app.put('/create').end(function (err, res) {
+      expect(res.body.reason).to.equal('INVALID_METHOD');
+      expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  it('fails on PATCH', function (done) {
+    app.patch('/create').end(function (err, res) {
+      expect(res.body.reason).to.equal('INVALID_METHOD');
+      expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  it('fails on DELETE', function (done) {
+    app.del('/create').end(function (err, res) {
+      expect(res.body.reason).to.equal('INVALID_METHOD');
+      expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
   it('fails with blank password', function (done) {
     let data = {password: ''};
     app.post('/create').send(data).end(function (err, res) {
