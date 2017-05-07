@@ -4,7 +4,7 @@ const password = require('../lib/password');
 const expect = require('chai').expect;
 const Bcrypt = require('bcrypt');
 
-describe('Password', function () {
+describe('password', function () {
 
   let body = {};
 
