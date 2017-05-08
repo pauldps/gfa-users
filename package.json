@@ -40,7 +40,8 @@
     ],
     "reporter": [
       "lcov",
-      "text-summary"
+      "text-summary",
+      "html"
     ]
   }
 }

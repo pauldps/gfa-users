@@ -8,7 +8,7 @@ const expressApp = require('express')();
 const bodyParser = require('body-parser');
 expressApp.use(bodyParser.json());
 
-expressApp.all('/all', function (req, res) {
+expressApp.all('/all/?*', function (req, res) {
   GoogleFunctionAuth.all(req, res);
 });
 
@@ -16,15 +16,15 @@ expressApp.all('/create', function (req, res) {
   GoogleFunctionAuth.create(req, res);
 });
 
-expressApp.all('/update', function (req, res) {
+expressApp.all('/update/?*', function (req, res) {
   GoogleFunctionAuth.update(req, res);
 });
 
-expressApp.all('/find', function (req, res) {
+expressApp.all('/find/?*', function (req, res) {
   GoogleFunctionAuth.find(req, res);
 });
 
-expressApp.all('/list', function (req, res) {
+expressApp.all('/list/?*', function (req, res) {
   GoogleFunctionAuth.list(req, res);
 });
 
@@ -37,7 +37,7 @@ expressApp.all('/ping', function (req, res) {
 });
 
 expressApp.all('/authorized-function', function (req, res) {
-  GoogleFunctionAuth.authorize(req, res, (req, res, user) => {
+  GoogleFunctionAuth.authorize(req, res, function (req, res, user) {
     res.status(200).json(user);
   });
 });
@@ -55,6 +55,10 @@ expressApp.all('/authorized-function-with-error', function (req, res) {
 
 expressApp.all('/authorized-function-without-next', function (req, res) {
   GoogleFunctionAuth.authorize(req, res);
+});
+
+expressApp.all('/destroy/?*', function (req, res) {
+  GoogleFunctionAuth.destroy(req, res);
 });
 
 expressApp.all('/signout', function (req, res) {

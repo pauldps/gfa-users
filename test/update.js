@@ -74,7 +74,7 @@ describe('update', function () {
       });
     });
 
-    it('fails without id', function (done) {
+    it('fails without userId', function (done) {
       let data = {username: 'user2'};
       app.put('/update').send(data).end(function (err, res) {
         expect(res.body.code).to.equal('BAD_REQUEST');

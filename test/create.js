@@ -55,8 +55,10 @@ describe('create', function () {
     });
   });
 
-  it('creates user with email and password and returns sanitized user', function (done) {
-    let data = {password: 'abc123', email: 'abc@test.com'};
+  // TODO: prevent creating user with role (sanitize input)
+
+  it('creates user with valid data and returns sanitized user', function (done) {
+    let data = {password: 'abc123', email: 'abc@test.com', role: 'admin'}; // role will be removed
     app.post('/create').send(data).end(function (err, res) {
       expect(res.body.code).to.equal('OK');
       expect(res.body.user.email).to.equal('abc@test.com');
@@ -64,6 +66,7 @@ describe('create', function () {
       expect(res.body.user.id).to.exist;
       expect(res.body.user.password).to.not.exist;
       expect(res.body.user.confirmationToken).to.not.exist;
+      expect(res.body.user.role).to.not.equal('admin');
       _cleanup(res.body.user.id, done);
     });
   });
