@@ -15,7 +15,7 @@ It stores user data in [Google Datastore](https://cloud.google.com/datastore/) u
 Create a new Google HTTP Function with the following code:
 
 ```javascript
-const users = require('google-function-authorizer')();
+const users = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
   users.handle(req, res);
