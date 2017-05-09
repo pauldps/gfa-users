@@ -45,7 +45,7 @@ All actions respond with a JSON object with a `code` attribute with the followin
 * `OK` - action has completed successfully
 * `BAD_REQUEST` - action has failed due to request not being in expected format
 * `NOT_FOUND` - endpoint not found, or user not found
-* `UNAUTHORIZED` - action requires that an user signs in first
+* `UNAUTHORIZED` - action requires that a user signs in first
 * `FORBIDDEN` - action requires that signed-in user has permission to perform it
 * `INTERNAL_ERROR` - an unexpected error has occurred while performing the action
 
@@ -87,7 +87,7 @@ This endpoint creates a new user.
 
 * `POST /users/signin`
 
-Signs an user in, starting a new session.
+Signs a user in, starting a new session.
 
 This endpoint sets a session cookie upon successful response, which will be sent in the next requests.
 
@@ -123,7 +123,7 @@ This endpoint sets a session cookie upon successful response, which will be sent
 * `POST /users/signout`
 * `DELETE /users/signin` (alternatively)
 
-Signs an user out, removing the session cookie.
+Signs a user out, removing the session cookie.
 
 <table>
 <tr><th>Request Body</th><th>Response</th></tr>
@@ -260,7 +260,7 @@ By default, this endpoint has the following requirements:
 
 * `DELETE /users/:userId`
 
-Removes an user.
+Removes a user.
 
 By default, this endpoint has the following requirements:
 
@@ -293,7 +293,7 @@ Some clients will fire a "preflight request" prior to making the real request to
 Call `authorize` in your _other_ Google Functions to have the session cookie read from the request before calling your code:
 
 ```javascript
-const users = require('google-function-authorizer');
+const users = require('google-function-authorizer')();
 
 exports.handleRequest = function (req, res) {
   users.authorize(req, res, mainFunction);
