@@ -2,6 +2,7 @@
 
 const app = require('../support/test-app');
 const expect = require('chai').expect;
+const helpers = require('../support/test-helpers');
 const User = require('../lib/user');
 
 describe('update', function () {
@@ -9,34 +10,10 @@ describe('update', function () {
   const EMAIL = 'updateuser@test.com';
   const PASSWORD = 'abc123';
 
-  it('404s on GET', function (done) {
-    app.get('/update').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
-  it('404s on POST', function (done) {
-    app.post('/update').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
-  it('404s on DELETE', function (done) {
-    app.del('/update').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
   describe('without session', function () {
 
     it('returns unauthorized', function (done) {
-      app.put('/update').send({username: 'user3'}).end(function (err, res) {
+      app.put('/users/1').send({username: 'user3'}).end(function (err, res) {
         expect(res.body.code).to.equal('UNAUTHORIZED');
         done();
       });
@@ -50,47 +27,38 @@ describe('update', function () {
 
     before(function (done) {
       let data = {email: EMAIL, password: PASSWORD, username: 'user1'}
-      app.post('/create').send(data).end(function (err, res) {
-        if (err) {
-          return done(err);
-        }
-        // Starts session
-        app.post('/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          user = res.body.user;
-          done();
-        });
+      helpers.create_user_and_sign_in(data, (err, entity) => {
+        user = entity;
+        done(err);
       });
     });
 
     after(function (done) {
-      app.del('/signout').end(function (err) {
-        if (err) {
-          return done(err);
-        }
-        User.delete(user.id, done);
+      helpers.delete_all_users_and_sign_out(done);
+    });
+
+    it('validates input', function (done) {
+      app.put(`/users/${user.id}`).send({email: 'invalidemail'}).end(function (err, res) {
+        expect(res.body.code).to.equal('BAD_REQUEST');
+        done();
       });
     });
 
-    it('fails without userId', function (done) {
-      let data = {username: 'user2'};
-      app.put('/update').send(data).end(function (err, res) {
-        expect(res.body.code).to.equal('BAD_REQUEST');
-        expect(res.body.reason).to.equal('USERID_REQUIRED');
+    it('cannot edit another user', function (done) {
+      app.put(`/users/1`).send({email: 'otheraccount@test.com'}).end(function (err, res) {
+        expect(res.body.code).to.equal('FORBIDDEN');
         done();
       });
     });
 
     it('works with blank password', function (done) {
-      let data = {id: user.id, username: 'user2'};
-      app.put('/update').send(data).end(function (err, res) {
+      let data = {username: 'user2'};
+      app.put(`/users/${user.id}`).send(data).end(function (err, res) {
         expect(res.body.code).to.equal('OK');
         expect(res.body.user.username).to.equal('user2');
         expect(res.body.user.email).to.equal(EMAIL);
         // Re-signin to make sure password wasn't affected
-        app.post('/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
+        app.post('/users/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
           expect(res.body.code).to.equal('OK');
           expect(res.body.user.username).to.equal('user2');
           done();
@@ -99,23 +67,43 @@ describe('update', function () {
     });
 
     it('changes password if present', function (done) {
-      let data = {id: user.id, password: 'def456', username: 'user3'};
-      app.put('/update').send(data).end(function (err, res) {
+      let data = {password: 'def456', username: 'user3'};
+      app.put(`/users/${user.id}`).send(data).end(function (err, res) {
         expect(res.body.code).to.equal('OK');
         expect(res.body.user.username).to.equal('user3');
-        app.post('/signin').send({email: EMAIL, password: 'def456'}).end(function (err, res) {
+        app.post('/users/signin').send({email: EMAIL, password: 'def456'}).end(function (err, res) {
           expect(res.body.code).to.equal('OK');
           expect(res.body.user.username).to.equal('user3');
           // change it back
           data.password = PASSWORD;
-          app.put('/update').send(data).end(function (err, res) {
+          app.put(`/users/${user.id}`).send(data).end(function (err, res) {
             done(err);
           });
         });
       });
     });
 
+    describe('as admin', function () {
+
+      before(function (done) {
+        helpers.sign_in_as_admin(done);
+      });
+
+      it('can edit any user', function (done) {
+        let data = {username: 'changedbyadmin'};
+        app.put(`/users/${user.id}`).send(data).end(function (err, res) {
+          expect(res.body.code).to.equal('OK');
+          expect(res.body.user.username).to.equal('changedbyadmin');
+          app.get(`/users/${user.id}`).end(function (err, res) {
+            expect(res.body.code).to.equal('OK');
+            expect(res.body.user.username).to.equal('changedbyadmin');
+            done();
+          });
+        });
+      });
+
+    });
+
   });
 
 });
-

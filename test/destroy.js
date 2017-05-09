@@ -10,46 +10,16 @@ const PASSWORD = 'xyz987';
 
 describe('destroy', function () {
 
+  let user;
+
   after(function (done) {
     helpers.delete_all_users_and_sign_out(done);
-  });
-
-  it('404s on GET', function (done) {
-    app.get('/destroy').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
-  it('404s on POST', function (done) {
-    app.post('/destroy').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
-  it('404s on PUT', function (done) {
-    app.put('/destroy').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
-  });
-
-  it('404s on PATCH', function (done) {
-    app.patch('/destroy').end(function (err, res) {
-      expect(res.body.code).to.equal('NOT_FOUND');
-      expect(res.statusCode).to.equal(404);
-      done();
-    });
   });
 
   describe('without session', function () {
 
     it('returns unauthorized', function (done) {
-      app.del('/destroy').end(function (err, res) {
+      app.del('/users/1').end(function (err, res) {
         expect(res.body.code).to.equal('UNAUTHORIZED');
         expect(res.statusCode).to.equal(401);
         done();
@@ -60,59 +30,32 @@ describe('destroy', function () {
 
   describe('with session', function () {
 
-    let user;
-
     before(function (done) {
       let data = {email: EMAIL, password: PASSWORD, username: 'user1'}
-      app.post('/create').send(data).end(function (err, res) {
-        if (err) {
-          return done(err);
-        }
-        // Starts session
-        app.post('/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          user = res.body.user;
-          done();
-        });
-      });
-    });
-
-    after(function (done) {
-      app.post('/signout').end(function (err) {
-        if (err) {
-          return done(err);
-        }
-        User.delete(user.id, done);
-      });
-    });
-
-    it('fails without userId', function (done) {
-      let data = {a: 'b'};
-      app.del('/destroy').query(data).end(function (err, res) {
-        expect(res.body.code).to.equal('BAD_REQUEST');
-        expect(res.body.reason).to.equal('USERID_REQUIRED');
+      helpers.create_user_and_sign_in(data, (err, entity) => {
+        if (err) return done(err);
+        user = entity;
         done();
       });
     });
 
+    after(function (done) {
+      helpers.delete_all_users_and_sign_out(done);
+    });
+
     it('fails if userId sent is different from signed-in, non-admin user', function (done) {
-      let data = {userId: 'IDONOTEXIST'};
-      app.del('/destroy').query(data).end(function (err, res) {
+      app.del('/users/anotherid').end(function (err, res) {
         expect(res.body.code).to.equal('FORBIDDEN');
         done();
       });
     });
 
-    it('deletes user and resets session if userId sent matches with signed-in, non-admin user', function (done) {
-      let data = {userId: user.id};
-      app.del('/destroy').query(data).end(function (err, res) {
+    it('deletes user and resets session if userId sent matches with signed-in user', function (done) {
+      app.del(`/users/${user.id}`).end(function (err, res) {
         expect(res.body.code).to.equal('OK');
-        app.get('/ping').end(function (err, res) {
-          expect(res.body.code).to.equal('OK');
-          expect(res.body.user).to.not.exist;
-          app.post('/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
+        app.get(`/users/${user.id}`).end(function (err, res) {
+          expect(res.body.code).to.equal('UNAUTHORIZED'); // not logged in
+          app.post('/users/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
             expect(res.body.code).to.equal('NOT_FOUND');
             done();
           });
@@ -131,14 +74,14 @@ describe('destroy', function () {
         });
       });
 
-      it('does not reset session when deleting another user', function (done) {
+      it('does not reset session when deleting a different user', function (done) {
         let dummy = {email: 'tobedeleted@test.com', username: 'tobedeleted', password: '123'};
         helpers.create_entity(dummy, (err, entity) => {
           if (err) return done(err);
-          app.del('/destroy').query({userId: entity.id}).end((err, res) => {
+          app.del(`/users/${entity.id}`).end((err, res) => {
             expect(res.body.code).to.equal('OK');
-            app.get('/ping').end((err, res) => {
-              expect(res.body.userId).to.equal(admin.id);
+            app.get(`/users/${admin.id}`).end((err, res) => {
+              expect(res.body.code).to.equal('OK');
               done();
             });
           });
@@ -146,8 +89,8 @@ describe('destroy', function () {
       });
 
       it('returns 404 if userId does not exist', function (done) {
-        let data = {userId: user.id}; // this user has been deleted by a previous test
-        app.del('/destroy').query(data).end(function (err, res) {
+        // user.id has been deleted by a previous test
+        app.del(`/users/${user.id}`).end(function (err, res) {
           expect(res.body.code).to.equal('NOT_FOUND');
           done();
         });

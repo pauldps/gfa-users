@@ -2,45 +2,18 @@
 
 const app = require('../support/test-app');
 const expect = require('chai').expect;
+const helpers = require('../support/test-helpers');
 const User = require('../lib/user');
 
 describe('create', function () {
 
-  it('fails on GET', function (done) {
-    app.get('/create').end(function (err, res) {
-      expect(res.body.reason).to.equal('INVALID_METHOD');
-      expect(res.statusCode).to.equal(400);
-      done();
-    });
-  });
-
-  it('fails on PUT', function (done) {
-    app.put('/create').end(function (err, res) {
-      expect(res.body.reason).to.equal('INVALID_METHOD');
-      expect(res.statusCode).to.equal(400);
-      done();
-    });
-  });
-
-  it('fails on PATCH', function (done) {
-    app.patch('/create').end(function (err, res) {
-      expect(res.body.reason).to.equal('INVALID_METHOD');
-      expect(res.statusCode).to.equal(400);
-      done();
-    });
-  });
-
-  it('fails on DELETE', function (done) {
-    app.del('/create').end(function (err, res) {
-      expect(res.body.reason).to.equal('INVALID_METHOD');
-      expect(res.statusCode).to.equal(400);
-      done();
-    });
+  after(function (done) {
+    helpers.delete_all_users_and_sign_out(done);
   });
 
   it('fails with blank password', function (done) {
     let data = {password: ''};
-    app.post('/create').send(data).end(function (err, res) {
+    app.post('/users').send(data).end(function (err, res) {
       expect(res.body.reason).to.equal('EMPTY_PASSWORD');
       expect(res.statusCode).to.equal(400);
       done();
@@ -49,17 +22,15 @@ describe('create', function () {
 
   it('fails with blank email', function (done) {
     let data = {password: 'abc123', email: ''};
-    app.post('/create').send(data).end(function (err, res) {
+    app.post('/users').send(data).end(function (err, res) {
       expect(res.statusCode).to.equal(400);
       done();
     });
   });
 
-  // TODO: prevent creating user with role (sanitize input)
-
   it('creates user with valid data and returns sanitized user', function (done) {
     let data = {password: 'abc123', email: 'abc@test.com', role: 'admin'}; // role will be removed
-    app.post('/create').send(data).end(function (err, res) {
+    app.post('/users').send(data).end(function (err, res) {
       expect(res.body.code).to.equal('OK');
       expect(res.body.user.email).to.equal('abc@test.com');
       expect(res.statusCode).to.equal(200);
@@ -67,12 +38,8 @@ describe('create', function () {
       expect(res.body.user.password).to.not.exist;
       expect(res.body.user.confirmationToken).to.not.exist;
       expect(res.body.user.role).to.not.equal('admin');
-      _cleanup(res.body.user.id, done);
+      done();
     });
   });
 
 });
-
-function _cleanup (userId, callback) {
-  User.delete(userId, callback);
-}

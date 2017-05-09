@@ -2,6 +2,7 @@
 
 const app = require('../support/test-app');
 const expect = require('chai').expect;
+const helpers = require('../support/test-helpers');
 const User = require('../lib/user');
 
 describe('authorize', function () {
@@ -34,28 +35,11 @@ describe('authorize', function () {
 
     before(function (done) {
       let data = {email: EMAIL, password: PASSWORD, username: 'user1'}
-      app.post('/create').send(data).end(function (err, res) {
-        if (err) {
-          return done(err);
-        }
-        // Starts session
-        app.post('/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          user = res.body.user;
-          done();
-        });
-      });
+      helpers.create_user_and_sign_in(data, done);
     });
 
     after(function (done) {
-      app.del('/signout').end(function (err) {
-        if (err) {
-          return done(err);
-        }
-        User.delete(user.id, done);
-      });
+      helpers.delete_all_users_and_sign_out(done);
     });
 
     it('raises an error if next() function is not specified', function () {
