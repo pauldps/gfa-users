@@ -22,7 +22,19 @@ exports.handleRequest = function (req, res) {
 };
 ```
 
-Make sure the library is added to __package.json__, and that the __entry point__ is correct (in the example above, it should be `handleRequest`).
+Add the library to __package.json__:
+
+```json
+{
+  "name": "your-function",
+  "version": "0.0.1",
+  "dependencies": {
+    "google-function-authorizer": "github:pauloddr/google-function-authorizer"
+  }
+}
+```
+
+Finally, make sure the __entry point__ is correct. In the example above, it should be `handleRequest`.
 
 Then, assuming you named your function "users", the following endpoints will be served by your function:
 
@@ -34,7 +46,7 @@ Then, assuming you named your function "users", the following endpoints will be 
 * `PUT|PATCH /users/:id`
 * `DELETE /users/:id`
 * `DELETE /users/signin`
-* `OPTIONS /users`
+* `OPTIONS /users(/*)`
 
 Read more about how each endpoint works in the next section.
 
@@ -182,7 +194,7 @@ The `next` attribute will be absent from the response if there are no more entri
 
 ### Show User
 
-* `GET /users/:userId`
+* `GET /users/:id`
 
 Returns data of a single user.
 
@@ -216,8 +228,8 @@ By default, this endpoint has the following requirements:
 
 ### Update User
 
-* `PUT /users/:userId`
-* `PATCH /users/:userId`
+* `PUT /users/:id`
+* `PATCH /users/:id`
 
 Updates data of a single user, including password.
 
@@ -258,7 +270,7 @@ By default, this endpoint has the following requirements:
 
 ### User Delete
 
-* `DELETE /users/:userId`
+* `DELETE /users/:id`
 
 Removes a user.
 
@@ -288,12 +300,12 @@ If user being deleted matches the user currently signed in, the user will be aut
 
 Some clients will fire a "preflight request" prior to making the real request to verify CORS options, which are supported by this library. It returns an empty 200 status code with the appropriate headers.
 
-### Authorization
+## Authorization
 
 Call `authorize` in your _other_ Google Functions to have the session cookie read from the request before calling your code:
 
 ```javascript
-const users = require('google-function-authorizer')();
+const users = require('google-function-authorizer');
 
 exports.handleRequest = function (req, res) {
   users.authorize(req, res, mainFunction);
@@ -306,9 +318,9 @@ function mainFunction (req, res, user) {
 
 If the session is valid, a `user` object will be passed along to your main function, containing a subset of stored attributes.
 
-If the session is invalid, a `401 - Unauthorized` error will be returned automatically. If you want to take control of error processing, pass a fourth argument to `authorize` with an error function that takes `req`, `res`, and `error` arguments.
+If the session is invalid, a `401 - Unauthorized` error will be returned automatically. If you want to take control of error processing, pass a fourth argument to `authorize` with an error function that takes `req` and `res` arguments.
 
-### Roles
+## Roles
 
 This library comes with a very simple role management system built-in.
 

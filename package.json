@@ -21,7 +21,6 @@
     "@google-cloud/datastore": "1.0.1",
     "bcrypt": "1.0.2",
     "client-sessions": "0.8.0",
-    "cors": "2.8.3",
     "gstore-node": "1.2.0"
   },
   "devDependencies": {
