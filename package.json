@@ -35,6 +35,7 @@
   },
   "nyc": {
     "include": [
+      "index.js",
       "lib/**/*.js"
     ],
     "reporter": [

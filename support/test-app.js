@@ -2,7 +2,9 @@
 
 require('../config/test');
 
-const GoogleFunctionAuth = require('../index');
+const GoogleFunctionAuth = require('../index')({
+  session: {secret: 'abc'}
+});
 
 const expressApp = require('express')();
 const bodyParser = require('body-parser');
@@ -21,9 +23,9 @@ expressApp.all('/authorized-function', function (req, res) {
 expressApp.all('/authorized-function-with-error', function (req, res) {
   GoogleFunctionAuth.authorize(req, res, (req, res, user) => {
     res.status(200).json(user);
-  }, (req, res, error) => {
+  }, (req, res) => {
     res.status(404).json({
-      code: error,
+      code: 'CUSTOM',
       message: 'Pretend I do not exist'
     });
   });

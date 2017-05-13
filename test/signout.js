@@ -9,7 +9,7 @@ describe('signout', function () {
   let user;
 
   beforeEach(function (done) {
-    let data = {email: 'signintest@test.com', password: 'abc12345'};
+    let data = {email: 'signouttest@test.com', password: 'abc12345'};
     helpers.create_user_and_sign_in(data, (err, entity) => {
       user = entity;
       done(err);

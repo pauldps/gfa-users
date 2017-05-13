@@ -18,8 +18,7 @@ describe('authorize', function () {
 
     it('returns unauthorized with custom error', function (done) {
       app.get('/authorized-function-with-error').end(function (err, res) {
-        expect(res.statusCode).to.equal(404);
-        expect(res.body.code).to.equal('UNAUTHORIZED');
+        expect(res.body.code).to.equal('CUSTOM');
         expect(res.body.message).to.equal('Pretend I do not exist');
         done();
       });

@@ -15,7 +15,9 @@ It stores user data in [Google Datastore](https://cloud.google.com/datastore/) u
 Create a new Google HTTP Function with the following code:
 
 ```javascript
-const users = require('google-function-authorizer');
+const users = require('google-function-authorizer')({
+  session: {secret: 'MYSECRETKEY'} // required!
+});
 
 exports.handleRequest = function (req, res) {
   users.handle(req, res);
@@ -95,7 +97,7 @@ This endpoint creates a new user.
 </td></tr>
 </table>
 
-### User Sign-in
+### Sign User In
 
 * `POST /users/signin`
 
@@ -130,7 +132,7 @@ This endpoint sets a session cookie upon successful response, which will be sent
 </td></tr>
 </table>
 
-### User Sign-out
+### Sign User Out
 
 * `POST /users/signout`
 * `DELETE /users/signin` (alternatively)
@@ -150,7 +152,7 @@ Signs a user out, removing the session cookie.
 </td></tr>
 </table>
 
-### User List
+### List Users
 
 * `GET /users`
 
@@ -268,7 +270,7 @@ By default, this endpoint has the following requirements:
 </td></tr>
 </table>
 
-### User Delete
+### Destroy User
 
 * `DELETE /users/:id`
 
@@ -294,18 +296,44 @@ If user being deleted matches the user currently signed in, the user will be aut
 </td></tr>
 </table>
 
-### Preflight Requests
+### Preflight Requests / Current Signed-in User
 
-* `OPTIONS /users/*`
+* `OPTIONS /users`
 
-Some clients will fire a "preflight request" prior to making the real request to verify CORS options, which are supported by this library. It returns an empty 200 status code with the appropriate headers.
+Some clients will fire a "preflight request" prior to making the real request to verify CORS options, which are supported by this library.
+
+You can also use this method to retrieve the current signed-in user, which will be present in the response body, as well as the current endpoint rules (see Configuration for details), which the client can then use to prevent certain actions on their side.
+
+<table>
+<tr><th>Request Body</th><th>Response</th></tr>
+<tr><td>(empty)</td><td>
+
+```javascript
+{
+  "code": "OK",
+  "userId": "12345",
+  "rules": {
+    "signin": "all",
+    "create": "all",
+    "update": "self",
+    "find": "self",
+    "list": "admin",
+    "destroy": "self"
+  }
+}
+```
+
+</td></tr>
+</table>
 
 ## Authorization
 
 Call `authorize` in your _other_ Google Functions to have the session cookie read from the request before calling your code:
 
 ```javascript
-const users = require('google-function-authorizer');
+const users = require('google-function-authorizer')({
+  session: {secret: 'MYSECRETKEY'} // required! must be the same as your users endpoint!
+});
 
 exports.handleRequest = function (req, res) {
   users.authorize(req, res, mainFunction);
@@ -324,49 +352,119 @@ If the session is invalid, a `401 - Unauthorized` error will be returned automat
 
 This library comes with a very simple role management system built-in.
 
-Users with `admin` role are able to edit and delete other users.
+The default rules are:
 
-Users with any other role are only allowed to edit or delete themselves.
+* Anyone can create a user or sign in.
+* Users with `admin` role are able to edit and delete other users.
+* Users with any other role are only allowed to edit or delete themselves.
+* Only admins can list users.
+* Users cannot be created with a role, since that specific endpoint is public.
+  * Another admin must edit newly created users if they need defined roles.
 
-Users cannot be created with a role, since that specific endpoint is public. Another user with `admin` role must edit newly created users if they need defined roles.
+These rules are customizable. Refer to the next section to learn how to change them.
 
 ## Configuration
 
-(Not yet implemented)
-
-With the exception of `session.secret`, all other settings have the following defaults:
+Settings can be customized upon requiring the library, and have the following defaults:
 
 ```javascript
 const users = require('google-function-authorizer')({
+
+  // Configure session cookie behavior here.
   session: {
-    secret: 'MYSECRET',
-    expiration: 24 * 60 * 60 * 1000, // session expiration in ms
-    active: 1000 * 60 * 5 // session active duration in ms
+    name: 'userSession', // cookie name
+    secret: null, // must be set! will raise error (and crash) if not defined
+    duration: 24 * 60 * 60 * 1000, // session expiration in ms
+    activeDuration: 1000 * 60 * 5 // session active duration in ms
   },
+
+  // Datastore settings.
   datastore: {
     kind: 'User',
-    namespace: null,
-    primaryField: 'email', // affects signin endpoint
-    fields: {
-      username: 'username',
-      email: 'email',
-      password: 'password',
-      role: 'role'
+    namespace: undefined
+  },
+
+  // You can overwrite the full schema, but it needs at least:
+  // - the primary field, and
+  // - the password field.
+  // Both field names can be defined in the "fields" section.
+  // If your schema is missing "confirmation" fields,
+  //   confirmation workflows will not run.
+  schema:  {
+    username: {
+      type: 'string',
+      optional: true,
+      excludeFromIndexes: true
+    },
+    email: {
+      type: 'string',
+      required: true,
+      validate: 'isEmail'
+    },
+    password: {
+      type: 'string',
+      required: true,
+      read: false,
+      excludeFromIndexes: true
+    },
+    role: {
+      type: 'string',
+      write: false
+    },
+    confirmationToken: {
+      type: 'string',
+      read: false
+    },
+    confirmedOn: {
+      type: 'datetime',
+      excludeFromIndexes: true
+    },
+    createdOn: {
+      type: 'datetime',
+      write: false,
+      default: Gstore.defaultValues.NOW,
+      excludeFromIndexes: true
+    },
+    modifiedOn: {
+      type: 'datetime',
+      write: false,
+      excludeFromIndexes: true
     }
   },
-  cors: {
-    allow: '*'
+
+  // If you use a custom schema, you can have custom field names as well.
+  fields: {
+    primary: 'email', // will be used in signin with password
+    username: 'username',
+    email: 'email',
+    password: 'password',
+    role: 'role'
   },
+
+  // Customize CORS headers here to anything you'd like.
+  // Multiple headers are accepted.
+  cors: {
+    "Access-Control-Allow-Origin": "*"
+  },
+
+  // Apply rules for certain user-related actions.
+  // The following values are accepted:
+  // - "all": public and unrestricted access
+  // - "user": access for logged-in users only
+  // - "self": access for record owner only, or admins
+  // - "admin": admin access only
+  // - false: endpoint is disabled
+  //   (useful if you want to disable user creation, for example)
+  // Absence of field or value will default to "admin".
   rules: {
-    // The following values are acceptable for the fields below:
-    // - true: public and unrestricted access
-    // - "user": access for logged-in users only
-    // - "self": access for record owner only, or admins
-    // - "admin": admin access only
-    show: 'self',
+    signin: 'all',
+    create: 'all',
+    update: 'self',
+    find: 'self',
     list: 'admin',
-    delete: 'self'
+    destroy: 'self'
   }
+
 });
 
 exports.handleRequest = function (req, res) {
@@ -374,21 +472,19 @@ exports.handleRequest = function (req, res) {
 };
 ```
 
-__Configuration must be the same across all functions__, so if you change any of the default values, make sure to replicate them accordingly.
+Please note that __settings must be the same across all functions__. So if you change any of the default values, make sure to replicate them accordingly.
 
 _When Google Cloud Functions support environment variables, we will change this approach so configuration can be unified and the copy/pasting avoided._
 
+If you want to customize Schema validators with your own functions, take a look at the [Gstore Schema documentation](https://sebelga.gitbooks.io/gstore-node/content/schema/).
+
 ## TODO/Wishlist
 
-* Support custom models and validation.
+* Google reCAPTCHA support on user creation and update.
 * Email service support (Mailgun, SendGrid, etc) for sending various confirmation messages.
-* In-memory caching support for `authorization`.
-* Allow `authorization` caching to be customized/disabled.
-* Allow CORS to be configured.
-* Allow configuration of Datastore options, such as kind, namespace, and attribute names.
-* Allow configuration of client-session options.
+* Customizable cache TTL support for `authorization`.
+  * Currently, it stores values in session until user signs out or session expires.
 * Support other data stores (like MySQL).
-* Support other password hashing libraries.
 * Support JSON Web Tokens instead of client-sessions.
 
 __This is a work in progress.__

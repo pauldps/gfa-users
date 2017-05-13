@@ -9,6 +9,8 @@ engines:
           mass_threshold: 50
 ratings:
   paths:
+    - "index.js"
+    - "package.json"
     - "lib/**/*"
 exclude_paths:
   - "test/"

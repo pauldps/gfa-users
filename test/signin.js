@@ -24,7 +24,7 @@ describe('signin', function () {
   it('fails with blank email', function (done) {
     let data = {password: 'abc123', email: ''};
     app.post('/users/signin').send(data).end(function (err, res) {
-      expect(res.body.reason).to.equal('EMAIL_REQUIRED');
+      expect(res.body.reason).to.equal('PRIMARY_FIELD_REQUIRED');
       expect(res.body.code).to.equal('BAD_REQUEST');
       done();
     });
