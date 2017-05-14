@@ -3,6 +3,7 @@
 [![Build Status](https://semaphoreci.com/api/v1/pauloddr/google-function-authorizer/branches/master/shields_badge.svg)](https://semaphoreci.com/pauloddr/google-function-authorizer)
 [![Test Coverage](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/coverage.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/coverage)
 [![Code Climate](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/gpa.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer)
+[![npm version](https://badge.fury.io/js/google-function-authorizer.svg)](https://badge.fury.io/js/google-function-authorizer)
 
 A simple user authentication and management system for [Google Cloud HTTP Functions](https://cloud.google.com/functions/docs/writing/http).
 
@@ -485,4 +486,6 @@ If you want to customize Schema validators with your own functions, take a look 
 * Support other data stores (like MySQL).
 * Support JSON Web Tokens instead of client-sessions.
 
-__This is a work in progress.__
+## License
+
+MIT
