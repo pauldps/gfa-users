@@ -1,7 +1,19 @@
 {
   "name": "google-function-authorizer",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "User management and authentication library for Google HTTP Functions",
+  "keywords": [
+    "google cloud",
+    "google cloud platform",
+    "google cloud functions",
+    "google datastore",
+    "user management",
+    "authentication",
+    "authenticator",
+    "authorization",
+    "authorizer",
+    "serverless"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/eslint lib/** && nyc mocha",

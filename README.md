@@ -4,8 +4,6 @@
 [![Test Coverage](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/coverage.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/coverage)
 [![Code Climate](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/gpa.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer)
 
-__(Currently under development)__
-
 A simple user authentication and management system for [Google Cloud HTTP Functions](https://cloud.google.com/functions/docs/writing/http).
 
 It stores user data in [Google Datastore](https://cloud.google.com/datastore/) using [gstore-node](https://github.com/sebelga/gstore-node); hashes passwords with [bcrypt](https://github.com/kelektiv/node.bcrypt.js); and manages browser sessions with [client-session](https://github.com/mozilla/node-client-sessions).
@@ -31,7 +29,7 @@ Add the library to __package.json__:
   "name": "your-function",
   "version": "0.0.1",
   "dependencies": {
-    "google-function-authorizer": "github:pauloddr/google-function-authorizer"
+    "google-function-authorizer": "0.1.0"
   }
 }
 ```
