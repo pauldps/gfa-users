@@ -15,7 +15,7 @@ describe('create', function () {
     let data = {password: ''};
     app.post('/users').send(data).end(function (err, res) {
       expect(res.body.reason).to.equal('EMPTY_PASSWORD');
-      expect(res.statusCode).to.equal(400);
+      expect(res.body.code).to.equal('BAD_REQUEST');
       done();
     });
   });
@@ -23,7 +23,8 @@ describe('create', function () {
   it('fails with blank email', function (done) {
     let data = {password: 'abc123', email: ''};
     app.post('/users').send(data).end(function (err, res) {
-      expect(res.statusCode).to.equal(400);
+      expect(res.body.code).to.equal('BAD_REQUEST');
+      expect(res.body.reason).to.equal('Property { email } is required');
       done();
     });
   });
@@ -33,7 +34,6 @@ describe('create', function () {
     app.post('/users').send(data).end(function (err, res) {
       expect(res.body.code).to.equal('OK');
       expect(res.body.user.email).to.equal('abc@test.com');
-      expect(res.statusCode).to.equal(200);
       expect(res.body.user.id).to.exist;
       expect(res.body.user.password).to.not.exist;
       expect(res.body.user.confirmationToken).to.not.exist;
