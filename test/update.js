@@ -52,15 +52,17 @@ describe('update', function () {
     });
 
     it('works with blank password', function (done) {
-      let data = {username: 'user2'};
+      let data = {username: 'user2', role: 'hacker'};
       app.put(`/users/${user.id}`).send(data).end(function (err, res) {
         expect(res.body.code).to.equal('OK');
         expect(res.body.user.username).to.equal('user2');
         expect(res.body.user.email).to.equal(EMAIL);
+        expect(res.body.user.role).to.not.equal('hacker');
         // Re-signin to make sure password wasn't affected
         app.post('/users/signin').send({email: EMAIL, password: PASSWORD}).end(function (err, res) {
           expect(res.body.code).to.equal('OK');
           expect(res.body.user.username).to.equal('user2');
+          expect(res.body.user.role).to.not.equal('hacker');
           done();
         });
       });
@@ -89,14 +91,16 @@ describe('update', function () {
         helpers.sign_in_as_admin(done);
       });
 
-      it('can edit any user', function (done) {
-        let data = {username: 'changedbyadmin'};
+      it('can edit any user, including role', function (done) {
+        let data = {username: 'changedbyadmin', role: 'editor'};
         app.put(`/users/${user.id}`).send(data).end(function (err, res) {
           expect(res.body.code).to.equal('OK');
           expect(res.body.user.username).to.equal('changedbyadmin');
+          expect(res.body.user.role).to.equal('editor');
           app.get(`/users/${user.id}`).end(function (err, res) {
             expect(res.body.code).to.equal('OK');
             expect(res.body.user.username).to.equal('changedbyadmin');
+            expect(res.body.user.role).to.equal('editor');
             done();
           });
         });
