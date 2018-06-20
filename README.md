@@ -42,7 +42,6 @@ Then, assuming you named your function "session", the following endpoints will b
 
 * `POST /session` - creates a new session (user sign-in)
 * `GET /session` - returns information about current session
-* `HEAD /session` - returns statusCode 200 if there's an ongoing session, 401 otherwise
 * `DELETE /session` - destroys session (user sign-out)
 * `OPTIONS /session` - returns headers
 
@@ -53,6 +52,8 @@ Read more about how each endpoint works in the next section.
 * `POST /session`
 
 This endpoint creates a new session if provided credentials are valid.
+
+Successful responses set a cookie in the browser (or client) with the session credentials.
 
 <table>
 <tr><th>Request Body</th><th>Response</th></tr>
@@ -81,7 +82,7 @@ This endpoint creates a new session if provided credentials are valid.
 <tr><td>
 
 ```javascript
-// invalid credentials
+// non-existing email or wrong password
 {
   "email": "myemail@test.com",
   "password": "wrongpass"
@@ -99,11 +100,44 @@ This endpoint creates a new session if provided credentials are valid.
 
 </table>
 
+### Current Session Information
+
+* `GET /session`
+
+Reads the session cookie and responds with friendly data.
+
+<table>
+<tr><th>Context</th><th>Response</th></tr>
+<tr><td>After successful sign-in</td><td>
+
+```javascript
+// statusCode: 200
+{
+  "id": "12345",
+  "username": "MyUsername"
+}
+```
+
+</td></tr>
+
+<tr><td>Not signed in</td><td>
+
+```javascript
+// statusCode: 401 Unauthorized
+// empty response
+```
+
+</td></tr>
+
+</table>
+
+To change this output, set `authorizer.session.fields` with an array of field names. Read more in [Configuration](#configuration) section.
+
 ### User Sign-out
 
 * `DELETE /session`
 
-Signs a user out, removing the session cookie.
+Signs a user out, removing the session cookie from the browser/client.
 
 <table>
 <tr><th>Request Body</th><th>Response</th></tr>
@@ -116,8 +150,6 @@ Signs a user out, removing the session cookie.
 
 </td></tr>
 </table>
-
-
 
 ### Preflight Requests
 
@@ -137,58 +169,81 @@ Some clients will fire a "preflight request" prior to making the real request to
 </td></tr>
 </table>
 
-## Authorization
+## Configuration
 
-Call `authorize` in your _other_ Google Functions to have the session cookie read from the request before calling your code:
+Settings can be customized after creating an instance.
+
+### `authorizer.session`
+
+Configures the session handler.
+
+```javascript
+authorizer.session.secret = null // REQUIRED! when not set, function will crash
+authorizer.session.name = 'userSession' // cookie name
+authorizer.session.duration = 24 * 60 * 60 * 1000, // session expiration in ms
+authorizer.session.activeDuration = activeDuration: 1000 * 60 * 5 // session active duration in ms
+authorizer.session.fields = ['username'] // list of fields to expose in session object; id is automatically included
+```
+
+`authorizer.secret` is an alias to `authorizer.session.secret`. 
+
+### `authorizer.database`
+
+Configures the database handler. 
+
+Properties are not related to any specific driver, but the default driver is Google Datastore.
+
+```javascript
+authorizer.database.table = 'User' // Datastore "Kind", MySQL/Postgres table name, etc
+authorizer.database.namespace = null // Datastore namespace, MySQL database name, Postgres schema, etc
+authorizer.database.fields.primary = 'username' // name of the field that is used together with password during sign-in
+authorizer.database.fields.password = 'password' // name of the field that stores the password
+```
+
+### `authorizer.headers`
+
+Array of headers that are sent in all responses.
+
+CORS and security headers should be included here, if your browser/client needs them.
+
+```javascript
+authorizer.headers.push(['Access-Control-Allow-Origin', '*'])
+```
+
+## Authorizing _other_ Google Functions
+
+Include this library in your other Google Functions (i.e., API endpoints that require session cookie), replicate the same settings (this is important!) and call `authorize` method to validate the session:
 
 ```javascript
 const Authorizer = require('google-function-authorizer')
 const authorizer = new Authorizer()
 
-authorizer.secret = 'MYSECRETKEY' // required! must be the same as your "session" function
+// configure the authorizer the same way in all functions
+authorizer.secret = ...
+// ... rest of settings
 
+// Entry Point
 exports.handleRequest = function (req, res) {
-  authorizer.authorize(req, res, mainFunction);
-};
+  authorizer.authorize(req, res, mainFunction) // <-- authorize request first
+}
 
+// Your code
 function mainFunction (req, res, user) {
   // session cookie is valid -- execute the rest of your function
 }
 ```
 
-If the session is valid, a `user` object will be passed along to your main function, containing a subset of stored attributes.
+If the session is valid, a `user` object will be passed along to your main function with the fields exposed in `authorizer.session.fields`.
 
 If the session is invalid, a `401 - Unauthorized` error will be returned automatically, and your main function won't be called. If you want to take control of error processing, pass a fourth argument to `authorize` with an error function that takes `req` and `res` arguments.
 
-## Configuration
-
-Settings can be customized after creating an instance and have the following defaults:
-
-```javascript
-authorizer.secret = null // REQUIRED! when not set, function will crash
-
-authorizer.session.name = 'userSession' // cookie name
-authorizer.session.duration = 24 * 60 * 60 * 1000, // session expiration in ms
-authorizer.session.activeDuration = activeDuration: 1000 * 60 * 5 // session active duration in ms
-
-authorizer.database.table = 'User' // Datastore "Kind"
-authorizer.database.namespace = null // Datastore namespace
-
-authorizer.database.fields.primary = 'username' // name of the field used together with password during sign-in
-authorizer.database.fields.password = 'password' // name of the field that stores the password
-
-authorizer.headers.push(['Access-Control-Allow-Origin', '*']) // array of headers sent in all responses
-```
-
-Please note that __settings must be the same across all functions__. So if you change any of the default values, make sure to replicate them accordingly.
-
-Google Cloud Functions do not support environment variables at this time. Whenever it does, this library will be updated to use them, to avoid the copy/paste of settings.
-
 ## TODO/Wishlist
 
+* Use environment variables in settings to avoid copy/paste of settings in different functions.
+  * Google Functions still do not support environment variables, but it's on the way.
 * Google reCAPTCHA support on user sign-in.
-* Email service support (Mailgun, SendGrid, etc) for sending various confirmation messages.
-* Support other data stores (like MySQL).
+* Email service support (Mailgun, SendGrid, etc) for confirmation messages.
+* Support other data stores (like MySQL/Postgres).
 
 ## License
 
