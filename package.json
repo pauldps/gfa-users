@@ -1,13 +1,12 @@
 {
   "name": "google-function-authorizer",
-  "version": "0.1.0",
-  "description": "User management and authentication library for Google HTTP Functions",
+  "version": "0.2.0",
+  "description": "User authentication library for Google HTTP Functions",
   "keywords": [
     "google cloud",
     "google cloud platform",
     "google cloud functions",
     "google datastore",
-    "user management",
     "authentication",
     "authenticator",
     "authorization",
@@ -16,7 +15,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/eslint lib/** && nyc mocha",
+    "test": "standard --fix && nyc mocha",
     "report": "npm install -g codeclimate-test-reporter && codeclimate-test-reporter < coverage/lcov.info"
   },
   "repository": {
@@ -30,8 +29,8 @@
   },
   "homepage": "https://github.com/pauloddr/google-function-authorizer#readme",
   "dependencies": {
-    "@google-cloud/datastore": "1.0.1",
-    "bcrypt": "1.0.2",
+    "@google-cloud/datastore": "1.4.0",
+    "bcrypt": "2.0.1",
     "client-sessions": "0.8.0",
     "gstore-node": "1.2.0"
   },
@@ -40,10 +39,10 @@
     "chai": "3.5.0",
     "chai-http": "3.0.0",
     "dotenv": "4.0.0",
-    "eslint": "3.19.0",
     "express": "4.15.2",
     "mocha": "3.3.0",
-    "nyc": "10.3.0"
+    "nyc": "10.3.0",
+    "standard": "*"
   },
   "nyc": {
     "include": [
@@ -55,5 +54,9 @@
       "text-summary",
       "html"
     ]
+  },
+  "standard": {
+    "env": "mocha",
+    "ignore": ["support", "test", "lib/password.js"]
   }
 }
