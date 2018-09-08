@@ -1,9 +1,12 @@
-# google-function-authorizer
+# No Longer Maintained
 
-[![Build Status](https://semaphoreci.com/api/v1/pauloddr/google-function-authorizer/branches/master/shields_badge.svg)](https://semaphoreci.com/pauloddr/google-function-authorizer)
-[![Test Coverage](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/coverage.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/coverage)
-[![Code Climate](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer/badges/gpa.svg)](https://lima.codeclimate.com/github/pauloddr/google-function-authorizer)
-[![npm version](https://badge.fury.io/js/google-function-authorizer.svg)](https://badge.fury.io/js/google-function-authorizer)
+This project has been deprecated in favor of [@gf-apis/sessions-api](https://github.com/gf-apis/sessions-api).
+
+Old README archived below.
+
+---
+
+# google-function-authorizer
 
 A simple user authentication and management system for [Google Cloud HTTP Functions](https://cloud.google.com/functions/docs/writing/http).
 
