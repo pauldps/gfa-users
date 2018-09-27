@@ -1,11 +1,3 @@
-# No Longer Maintained
-
-This project has been deprecated in favor of [@gf-apis/sessions-api](https://github.com/gf-apis/sessions-api).
-
-Old README archived below.
-
----
-
 # google-function-authorizer
 
 A simple user authentication and management system for [Google Cloud HTTP Functions](https://cloud.google.com/functions/docs/writing/http).
