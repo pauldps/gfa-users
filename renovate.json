@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "unpublishSafe": true
+}
