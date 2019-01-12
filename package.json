@@ -33,7 +33,7 @@
   "devDependencies": {
     "@firebase/testing": "0.5.3",
     "body-parser": "1.18.3",
-    "chai": "4.1.2",
+    "chai": "4.2.0",
     "chai-http": "4.2.1",
     "coveralls": "3.0.2",
     "dirty-chai": "2.0.1",
