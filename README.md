@@ -4,7 +4,7 @@ Build a users management API using [Google Cloud HTTP Functions](https://cloud.g
 
 ## WIP
 
-This is a work in progress.
+This is a work in progress. Documentation coming soon.
 
 ## License
 
