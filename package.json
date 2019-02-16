@@ -31,7 +31,7 @@
     "@gfa/firestore-adapter": "github:pauloddr/gfa-firestore-adapter"
   },
   "devDependencies": {
-    "@firebase/testing": "0.7.1",
+    "@firebase/testing": "0.7.2",
     "body-parser": "1.18.3",
     "chai": "4.2.0",
     "chai-http": "4.2.1",
